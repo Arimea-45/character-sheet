@@ -60,7 +60,7 @@ def ensure_headers(sheet):
     try:
         headers = sheet.row_values(1)
         required_headers = [
-            'timestamp', 'id', 'name', 'race', 'profession',
+            'timestamp', 'id', 'name', 'image_url', 'race', 'profession',
             'status', 'current_time', 'location', 'inventory',
             'birth_date', 'birth_place', 'lifespan', 'star_sign',
             'first_appearance', 'status_title', 'biography',
@@ -208,6 +208,7 @@ def save_character():
         
         row_data = [
             timestamp, record_id, name,
+            data.get('image_url', ''),
             data.get('race', ''), data.get('profession', ''),
             data.get('status', ''), data.get('current_time', ''),
             data.get('location', ''), data.get('inventory', ''),
