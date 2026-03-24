@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список персонажей | Фэнтези мир</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #fef7e8;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            color: #1e1a15;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9d6b0;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: #2f2a22;
+        }
+
+        .nav-links a {
+            margin-left: 1.5rem;
+            text-decoration: none;
+            color: #b48c48;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            color: #2f2a22;
+        }
+
+        .stats {
+            background: #fffcf3;
+            border-radius: 24px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #ecdca8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .characters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .character-card {
+            background: #fffcf3;
+            border-radius: 24px;
+            padding: 1.2rem;
+            border: 1px solid #ecdca8;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .character-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .character-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2f2a22;
+            border-bottom: 2px solid #e9d6b0;
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .character-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .character-info span {
+            background: #f9f4e6;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+        }
+
+        .character-meta {
+            font-size: 0.8rem;
+            color: #7a684a;
+            margin-top: 0.8rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid #e9d6b0;
+        }
+
+        .delete-btn {
+            background: #d4b48c;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            transition: 0.2s;
+        }
+
+        .delete-btn:hover {
+            background: #c49a6c;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 24px;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            width: 90%;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e9d6b0;
+        }
+
+        .close-btn {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #7a684a;
+        }
+
+        .character-full {
+            line-height: 1.6;
+        }
+
+        .character-full h4 {
+            color: #b48c48;
+            margin-top: 1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.2rem;
+            color: #7a684a;
+        }
+
+        @media (max-width: 700px) {
+            .characters-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📋 Список персонажей</h1>
+        <div class="nav-links">
+            <a href="/">📝 Создать</a>
+            <a href="/list">📋 Список</a>
+        </div>
+    </div>
+
+    <div class="stats" id="stats">
+        <span>📊 Загрузка...</span>
+    </div>
+
+    <div id="charactersList" class="characters-grid">
+        <div class="loading">🕯️ Загрузка анкет... 🕯️</div>
+    </div>
+</div>
+
+<div id="characterModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">Персонаж</h2>
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+        </div>
+        <div id="modalBody" class="character-full">
+            Загрузка...
+        </div>
+    </div>
+</div>
+
+<script>
+    let characters = [];
+
+    async function loadCharacters() {
+        try {
+            const res = await fetch('/api/characters');
+            const data = await res.json();
+            
+            if (res.ok) {
+                characters = data.characters;
+                renderCharacters();
+                document.getElementById('stats').innerHTML = `
+                    <span>📊 Всего персонажей: ${data.count}</span>
+                    <span>⭐ ${new Date().toLocaleDateString()}</span>
+                `;
+            } else {
+                document.getElementById('charactersList').innerHTML = `<div class="loading">❌ Ошибка загрузки: ${data.error}</div>`;
+            }
+        } catch (err) {
+            document.getElementById('charactersList').innerHTML = `<div class="loading">❌ Ошибка соединения: ${err.message}</div>`;
+        }
+    }
+
+    function renderCharacters() {
+        const container = document.getElementById('charactersList');
+        
+        if (characters.length === 0) {
+            container.innerHTML = '<div class="loading">📜 Пока нет ни одной анкеты. Создайте первого персонажа!</div>';
+            return;
+        }
+        
+        container.innerHTML = characters.map(char => `
+            <div class="character-card" onclick="viewCharacter(${char.row_number})">
+                <div class="character-name">${escapeHtml(char.name)}</div>
+                <div class="character-info">
+                    <span>🧝 ${escapeHtml(char.race || 'Не указана')}</span>
+                    <span>⚔️ ${escapeHtml(char.profession || 'Не указана')}</span>
+                    <span>📍 ${escapeHtml(char.location || 'Не указана')}</span>
+                </div>
+                <div class="character-meta">
+                    📅 ${char.timestamp || 'Дата неизвестна'}<br>
+                    ⚡ ${escapeHtml(char.status || 'Статус не указан')}
+                </div>
+                <button class="delete-btn" onclick="deleteCharacter(${char.row_number}, '${escapeHtml(char.name)}', event)">🗑️ Удалить</button>
+            </div>
+        `).join('');
+    }
+
+    async function viewCharacter(rowNumber) {
+        const modal = document.getElementById('characterModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+        
+        modalTitle.innerHTML = '📜 Загрузка...';
+        modalBody.innerHTML = '🕯️ Загрузка данных...';
+        modal.style.display = 'flex';
+        
+        try {
+            const res = await fetch(`/api/character/${rowNumber}`);
+            const char = await res.json();
+            
+            modalTitle.innerHTML = escapeHtml(char.name || 'Без имени');
+            modalBody.innerHTML = `
+                <p><strong>📅 Дата записи:</strong> ${char.timestamp || 'Не указана'}</p>
+                <h4>🧝 Основная информация</h4>
+                <p><strong>Раса:</strong> ${escapeHtml(char.race || 'Не указана')}</p>
+                <p><strong>Профессия:</strong> ${escapeHtml(char.profession || 'Не указана')}</p>
+                <p><strong>Статус:</strong> ${escapeHtml(char.status || 'Не указан')}</p>
+                <p><strong>Локация:</strong> ${escapeHtml(char.location || 'Не указана')}</p>
+                <p><strong>Инвентарь:</strong> ${escapeHtml(char.inventory || 'Не указан')}</p>
+                
+                <h4>📖 История</h4>
+                <p><strong>Дата рождения:</strong> ${escapeHtml(char.birth_date || 'Не указана')}</p>
+                <p><strong>Место рождения:</strong> ${escapeHtml(char.birth_place || 'Не указано')}</p>
+                <p><strong>Годы жизни:</strong> ${escapeHtml(char.lifespan || 'Не указаны')}</p>
+                <p><strong>Знак Звездного круга:</strong> ${escapeHtml(char.star_sign || 'Не указан')}</p>
+                <p><strong>Первое появление:</strong> ${escapeHtml(char.first_appearance || 'Не указано')}</p>
+                <p><strong>Статус (титул):</strong> ${escapeHtml(char.status_title || 'Не указан')}</p>
+                
+                <h4>📜 Биография</h4>
+                <p>${escapeHtml(char.biography || 'Не указана').replace(/\n/g, '<br>')}</p>
+                
+                <h4>🎭 Внешность</h4>
+                <p>${escapeHtml(char.appearance || 'Не указана').replace(/\n/g, '<br>')}</p>
+                
+                <h4>💭 Характер</h4>
+                <p>${escapeHtml(char.personality || 'Не указан').replace(/\n/g, '<br>')}</p>
+            `;
+        } catch (err) {
+            modalBody.innerHTML = `<p>❌ Ошибка загрузки: ${err.message}</p>`;
+        }
+    }
+
+    async function deleteCharacter(rowNumber, name, event) {
+        event.stopPropagation();
+        
+        if (confirm(`Вы уверены, что хотите удалить персонажа "${name}"? Это действие нельзя отменить.`)) {
+            try {
+                const res = await fetch(`/api/character/delete/${rowNumber}`, {
+                    method: 'DELETE'
+                });
+                const result = await res.json();
+                
+                if (res.ok) {
+                    alert(result.message);
+                    loadCharacters(); // Обновляем список
+                } else {
+                    alert(`Ошибка: ${result.error}`);
+                }
+            } catch (err) {
+                alert(`Ошибка соединения: ${err.message}`);
+            }
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('characterModal').style.display = 'none';
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    window.onclick = (e) => {
+        const modal = document.getElementById('characterModal');
+        if (e.target === modal) closeModal();
+    };
+
+    loadCharacters();
+</script>
+</body>
+</html>

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Анкета персонажа | Фэнтези мир</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #fef7e8;
+            background-image: radial-gradient(circle at 10% 20%, rgba(210, 180, 140, 0.08) 2%, transparent 2.5%),
+                              radial-gradient(circle at 85% 70%, rgba(160, 120, 80, 0.06) 1.8%, transparent 2%);
+            background-size: 48px 48px, 32px 32px;
+            font-family: 'Georgia', 'Times New Roman', 'Palatino', serif;
+            color: #1e1a15;
+            padding: 2rem 1.5rem;
+        }
+
+        .character-sheet {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 252, 240, 0.92);
+            backdrop-filter: blur(2px);
+            border-radius: 48px 32px 48px 32px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 200, 0.8);
+            padding: 2rem;
+            border: 1px solid #e9d6b0;
+        }
+
+        /* Верхний ряд: изображение и блок статуса */
+        .top-row {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        /* Блок изображения */
+        .image-block {
+            flex: 0 0 280px;
+            width: 280px;
+        }
+
+        .portrait-frame {
+            background: #f3ecd9;
+            border: 3px double #b48c48;
+            border-radius: 24px;
+            padding: 0.8rem;
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .portrait-placeholder {
+            background: #e6dbbc;
+            width: 100%;
+            aspect-ratio: 3 / 4;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #7a5a3a;
+            font-size: 1.1rem;
+            gap: 0.8rem;
+            border: 1px dashed #b68b40;
+            background-image: linear-gradient(45deg, #f0e5ce 25%, #e9dbbc 25%, #e9dbbc 50%, #f0e5ce 50%, #f0e5ce 75%);
+            background-size: 20px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .portrait-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .img-upload-btn {
+            margin-top: 12px;
+            background: #e9d5a7;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 40px;
+            font-family: inherit;
+            font-weight: bold;
+            color: #2c241a;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.85rem;
+            width: 100%;
+        }
+
+        .img-upload-btn:hover {
+            background: #ddc284;
+            transform: scale(0.98);
+        }
+
+        /* Блок статуса (справа от изображения) */
+        .status-block {
+            flex: 1;
+            background: #fffcf3;
+            border-radius: 28px;
+            padding: 1.5rem;
+            border: 1px solid #ecdca8;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .status-header {
+            border-bottom: 2px solid #e9d6b0;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .status-header h2 {
+            font-size: 1.8rem;
+            color: #2f2a22;
+            margin-bottom: 0.3rem;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .status-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-label {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #b48c48;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-value {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-top: 0.2rem;
+            color: #1e1a15;
+        }
+
+        .status-value input, .status-value textarea {
+            font-size: 0.95rem;
+            margin-top: 0;
+            padding: 4px 8px;
+        }
+
+        .inventory-box {
+            background: #f9f4e6;
+            border-radius: 16px;
+            padding: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        .inventory-box textarea {
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        /* Колонка под изображением */
+        .under-image-info {
+            margin-top: 1.5rem;
+            background: #fffcf3;
+            border-radius: 28px;
+            padding: 1.2rem;
+            border: 1px solid #ecdca8;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+        }
+
+        .info-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-field label {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #b48c48;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-field input, .info-field select {
+            font-size: 0.95rem;
+            padding: 5px 10px;
+            margin-top: 3px;
+        }
+
+        /* Основной блок с вкладками */
+        .tabs-container {
+            margin-top: 2rem;
+        }
+
+        .tabs-header {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid #ecdca8;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1.2rem;
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            color: #7a684a;
+            cursor: pointer;
+            transition: 0.2s;
+            border-radius: 20px 20px 0 0;
+            position: relative;
+        }
+
+        .tab-btn:hover {
+            color: #2f2a22;
+            background: rgba(233, 213, 167, 0.3);
+        }
+
+        .tab-btn.active {
+            color: #2f2a22;
+            background: #fffcf3;
+            border-bottom: 3px solid #c9a458;
+        }
+
+        .tab-content {
+            display: none;
+            background: #fffcf3;
+            border-radius: 24px;
+            padding: 1.8rem;
+            border: 1px solid #ecdca8;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tab-content label {
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #4a3a28;
+        }
+
+        .tab-content textarea {
+            width: 100%;
+            min-height: 300px;
+            font-size: 1rem;
+            line-height: 1.5;
+            padding: 1rem;
+            font-family: 'Georgia', serif;
+            background: #fffef7;
+            border: 1px solid #dac292;
+            border-radius: 20px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background: #c7a252;
+            border: none;
+            font-size: 1.3rem;
+            font-weight: bold;
+            padding: 12px 28px;
+            border-radius: 48px;
+            color: #251f16;
+            cursor: pointer;
+            font-family: inherit;
+            transition: 0.2s;
+            width: 100%;
+            margin-top: 2rem;
+            box-shadow: 0 5px 0 #7a582e;
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #7a582e;
+        }
+
+        .response-area {
+            margin-top: 1.5rem;
+            background: #e9e0ca;
+            border-radius: 28px;
+            padding: 1.2rem;
+            font-size: 1rem;
+            border-left: 8px solid #b48c48;
+            font-style: italic;
+        }
+
+        input, select, textarea {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: #fffef7;
+            border: 1px solid #dac292;
+            border-radius: 16px;
+            padding: 6px 12px;
+            color: #1e1a15;
+            transition: 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #b47c48;
+            box-shadow: 0 0 0 2px rgba(180, 124, 72, 0.2);
+        }
+
+        @media (max-width: 900px) {
+            .top-row {
+                flex-direction: column;
+            }
+            .image-block {
+                flex: 0 0 auto;
+                width: 100%;
+                max-width: 320px;
+                margin: 0 auto;
+            }
+            .status-block {
+                width: 100%;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="character-sheet">
+    <!-- Верхний ряд: изображение и блок статуса -->
+    <div class="top-row">
+        <!-- Блок изображения -->
+        <div class="image-block">
+            <div class="portrait-frame">
+                <div class="portrait-placeholder" id="portraitPreview">
+                    <span>⚔️ ПОРТРЕТ ⚔️</span>
+                </div>
+                <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                <button type="button" class="img-upload-btn" id="uploadBtn">📜 Загрузить изображение</button>
+            </div>
+        </div>
+
+        <!-- Блок статуса (справа от изображения) -->
+        <div class="status-block">
+            <div class="status-header">
+                <h2><input type="text" id="charName" placeholder="Имя персонажа" value="  Аэрин Тенетрис" style="font-size: 1.8rem; font-weight: bold; border: none; padding: 0; background: transparent; width: 100%;"></h2>
+            </div>
+            <div class="status-grid">
+                <div class="status-item">
+                    <span class="status-label">⚡ Состояние</span>
+                    <input type="text" id="status" class="status-value" value="Здоров, полон сил">
+                </div>
+                <div class="status-item">
+                    <span class="status-label">⏰ Время на данный момент</span>
+                    <input type="text" id="currentTime" class="status-value" value="Весна, 3-й день месяца Цветущих Ветров">
+                </div>
+                <div class="status-item">
+                    <span class="status-label">📍 Локация</span>
+                    <input type="text" id="location" class="status-value" value="Таверна «Серебряный Рог», Старый Предел">
+                </div>
+            </div>
+            <div class="inventory-box">
+                <span class="status-label">🎒 Инвентарь</span>
+                <textarea id="inventory" rows="3" style="width: 100%; margin-top: 8px;">Эльфийский плащ, рунический кинжал, амулет луны, походный набор, 50 золотых монет</textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Колонка под изображением (раса, дата рождения и т.д.) -->
+    <div class="under-image-info">
+        <div class="info-grid">
+		    <div class="info-field">
+                <label>👑 Статус</label>
+                <input type="text" id="statusTitle" value="Хранитель рун, искатель истины">
+            </div>
+            <div class="info-field">
+                <label>📅 Дата рождения</label>
+                <input type="text" id="birthDate" value="12-е число месяца Зимней Звезды, 1243 год Эры Возрождения">
+            </div>
+            <div class="info-field">
+                <label>📖 Первое появление</label>
+                <input type="text" id="firstAppearance" value="Летопись «Восход над Туманным лесом»">
+            </div>
+            <div class="info-field">
+                <label>🏔️ Место рождения</label>
+                <input type="text" id="birthPlace" value="Туманный лес, Эрдалор">
+            </div>
+            <div class="info-field">
+                <label>🧝 Раса</label>
+                <input type="text" id="race" value="Полуэльф">
+            </div>
+            <div class="info-field">
+                <label>⏳ Годы жизни</label>
+                <input type="text" id="lifespan" value="1243 - н.в. (87 лет)">
+            </div>
+			<div class="info-field">
+                <label>⚔️ Профессия</label>
+                <input type="text" id="profession" value="Исследователь древностей, наёмный маг">
+            </div>
+            <div class="info-field">
+                <label>⭐ Знак Звездного круга</label>
+                <input type="text" id="starSign" value="Странствующий Странник">
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной блок с тремя вкладками -->
+    <div class="tabs-container">
+        <div class="tabs-header">
+            <button class="tab-btn active" data-tab="bio">📜 Биография</button>
+            <button class="tab-btn" data-tab="appearance">🎭 Внешность</button>
+            <button class="tab-btn" data-tab="personality">💭 Характер</button>
+        </div>
+
+        <div class="tab-content active" id="bio">
+            <label>История жизни персонажа</label>
+            <textarea id="biography" placeholder="Расскажите о жизни героя...">Аэрин родился на границе эльфийских и человеческих земель. Его отец был человеком-странником, мать — эльфийкой из благородного дома. С ранних лет он чувствовал зов приключений. В 15 лет покинул родной дом, чтобы изучать древние руны у мудрецов Восточных Гор. За годы странствий он собрал множество знаний о забытых артефактах и проклятиях, оставшихся от древней цивилизации. Сейчас он путешествует по королевствам, помогая тем, кто столкнулся с магическими угрозами, и ищет ключ к снятию древнего проклятия, тяготеющего над его родом.</textarea>
+        </div>
+
+        <div class="tab-content" id="appearance">
+            <label>Описание внешности</label>
+            <textarea id="appearanceText" placeholder="Опишите внешность персонажа...">Аэрин — высокий, стройный мужчина с острыми эльфийскими чертами лица. Длинные серебристо-русые волосы собраны в низкий хвост. Глаза — янтарно-золотистые, с вертикальными зрачками, что выдает в нем наследие древней магии. На левой щеке — тонкий шрам, полученный в одной из первых схваток с теневыми тварями. Одежду предпочитает практичную: кожаный доспех, удобный плащ из темно-зеленой ткани, высокие сапоги для дальних переходов. На шее всегда носит серебряный амулет с руной защиты, подаренный матерью. Его движения плавны и грациозны, но в бою становятся быстрыми и смертоносными.</textarea>
+        </div>
+
+        <div class="tab-content" id="personality">
+            <label>Характер и мировоззрение</label>
+            <textarea id="personalityText" placeholder="Опишите характер персонажа...">Аэрин обладает спокойным, вдумчивым нравом, унаследованным от эльфийской крови. Он терпелив и мудр, но иногда проявляет человеческую страстность и решительность. Верит в то, что знание — величайшая сила, поэтому всегда стремится понять природу вещей, прежде чем действовать. К союзникам относится с преданностью, но новых людей принимает в круг доверия неохотно. Обладает тонким чувством юмора, которое проявляется в неожиданных моментах. В сложных ситуациях сохраняет хладнокровие, но может быть безжалостен к тем, кто угрожает невинным. Его главная слабость — стремление защитить всех, что иногда приводит к необдуманным рискам.</textarea>
+        </div>
+    </div>
+
+    <!-- Кнопка отправки -->
+    <button class="submit-btn" id="submitForm">🔮 Запечатлеть анкету 🔮</button>
+    <div id="responseMessage" class="response-area">
+        ✨ Здесь появится ответ от магии Python (сервера) ✨
+    </div>
+</div>
+
+<script>
+    // Обработка загрузки изображения
+    const uploadInput = document.getElementById('imageUpload');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const portraitPreview = document.getElementById('portraitPreview');
+
+    uploadBtn.addEventListener('click', () => {
+        uploadInput.click();
+    });
+
+    uploadInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                portraitPreview.innerHTML = '';
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                img.style.borderRadius = '14px';
+                img.style.position = 'absolute';
+                img.style.top = '0';
+                img.style.left = '0';
+                portraitPreview.style.position = 'relative';
+                portraitPreview.style.background = '#1e1a15';
+                portraitPreview.style.backgroundImage = 'none';
+                portraitPreview.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Переключение вкладок
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.getAttribute('data-tab');
+            
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            
+            btn.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+
+    // Отправка данных на сервер
+    const submitBtn = document.getElementById('submitForm');
+    const responseDiv = document.getElementById('responseMessage');
+
+    async function sendCharacterData() {
+        const characterData = {
+            name: document.getElementById('charName').value,
+            status: document.getElementById('status').value,
+            current_time: document.getElementById('currentTime').value,
+            location: document.getElementById('location').value,
+            inventory: document.getElementById('inventory').value,
+            race: document.getElementById('race').value,
+            birth_date: document.getElementById('birthDate').value,
+            birth_place: document.getElementById('birthPlace').value,
+            lifespan: document.getElementById('lifespan').value,
+            star_sign: document.getElementById('starSign').value,
+            first_appearance: document.getElementById('firstAppearance').value,
+            status_title: document.getElementById('statusTitle').value,
+            profession: document.getElementById('profession').value,
+            biography: document.getElementById('biography').value,
+            appearance: document.getElementById('appearanceText').value,
+            personality: document.getElementById('personalityText').value
+        };
+
+        responseDiv.innerHTML = '🕯️ Отправка летописи в архив судеб... 🕯️';
+        
+        try {
+            const response = await fetch('/save_character', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(characterData)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                responseDiv.innerHTML = `✨ Магия приняла анкету! ✨<br>📜 ${result.message}<br>⏳ Время записи: ${result.timestamp}`;
+            } else {
+                const errorText = await response.text();
+                responseDiv.innerHTML = `⚠️ Ошибка связи с сервером: ${response.status}. Убедитесь, что Python Flask запущен. ⚠️<br>${errorText}`;
+            }
+        } catch (error) {
+            console.error('fetch error:', error);
+            responseDiv.innerHTML = `🌩️ Не удалось соединиться с сервером Python. Убедитесь, что бэкенд запущен (python app.py). <br> Ошибка: ${error.message}`;
+        }
+    }
+
+    submitBtn.addEventListener('click', sendCharacterData);
+</script>
+
+</body>
+</html>
