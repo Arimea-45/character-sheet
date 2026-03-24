@@ -283,6 +283,7 @@
             
             modalTitle.innerHTML = escapeHtml(char.name || 'Без имени');
             modalBody.innerHTML = `
+                ${char.image_url ? `<img src="${escapeHtml(char.image_url)}" style="max-width: 200px; border-radius: 16px; margin-bottom: 1rem;">` : ''}
                 <p><strong>📅 Дата записи:</strong> ${char.timestamp || 'Не указана'}</p>
                 <h4>🧝 Основная информация</h4>
                 <p><strong>Раса:</strong> ${escapeHtml(char.race || 'Не указана')}</p>
