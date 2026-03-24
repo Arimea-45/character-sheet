@@ -325,6 +325,7 @@
                     </div>
                     <input type="file" id="imageUpload" accept="image/*" style="display: none;">
                     <button type="button" class="img-upload-btn" id="uploadBtn">📜 Загрузить изображение</button>
+                    <input type="text" id="imageUrl" placeholder="Или вставьте ссылку на изображение" style="margin-top: 8px; width: 100%;">
                 </div>
             </div>
 
@@ -362,7 +363,7 @@
                 <div class="info-field"><label>⭐ Знак Звездного круга</label><input type="text" id="starSign" placeholder="Мышь"></div>
                 <div class="info-field"><label>📖 Первое появление</label><input type="text" id="firstAppearance" placeholder="Клубок 2"></div>
                 <div class="info-field"><label>👑 Статус</label><input type="text" id="statusTitle" placeholder="Эшевен лекарской науки"></div>
-                <div class="info-field"><label>⚔️ Профессия</label><input type="text" id="profession" value="Лекарь"></div>
+                <div class="info-field"><label>⚔️ Профессия</label><input type="text" id="profession" placeholder="Лекарь"></div>
             </div>
         </div>
 
@@ -437,9 +438,30 @@
     const responseDiv = document.getElementById('responseMessage');
     const modal = document.getElementById('confirmModal');
 
+    const imageUrlInput = document.getElementById('imageUrl');
+
+    imageUrlInput.addEventListener('change', function() {
+        const url = this.value.trim();
+        if (url) {
+            const img = document.createElement('img');
+            img.onload = function() {
+                portraitPreview.innerHTML = '';
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                portraitPreview.appendChild(img);
+            };
+            img.onerror = function() {
+                alert('Не удалось загрузить изображение по ссылке. Проверьте URL.');
+            };
+            img.src = url;
+        }
+    });
+
     async function saveCharacter(overwrite = false) {
         const data = {
             name: document.getElementById('charName').value,
+            image_url: document.getElementById('imageUrl').value,
             status: document.getElementById('status').value,
             current_time: document.getElementById('currentTime').value,
             location: document.getElementById('location').value,
