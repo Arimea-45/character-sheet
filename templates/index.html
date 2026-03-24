@@ -401,6 +401,52 @@
 </div>
 
 <script>
+    window.addEventListener('DOMContentLoaded', function() {
+        const editData = sessionStorage.getItem('editCharacter');
+        const editRow = sessionStorage.getItem('editRowNumber');
+    
+        if (editData && editRow) {
+            const character = JSON.parse(editData);
+        
+            document.getElementById('charName').value = character.name || '';
+            document.getElementById('imageUrl').value = character.image_url || '';
+        
+            if (character.image_url) {
+                const img = document.createElement('img');
+                img.src = character.image_url;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                portraitPreview.innerHTML = '';
+                portraitPreview.appendChild(img);
+            }
+        
+            document.getElementById('status').value = character.status || '';
+            document.getElementById('currentTime').value = character.current_time || '';
+            document.getElementById('location').value = character.location || '';
+            document.getElementById('inventory').value = character.inventory || '';
+            document.getElementById('race').value = character.race || '';
+            document.getElementById('birthDate').value = character.birth_date || '';
+            document.getElementById('birthPlace').value = character.birth_place || '';
+            document.getElementById('lifespan').value = character.lifespan || '';
+            document.getElementById('starSign').value = character.star_sign || '';
+            document.getElementById('firstAppearance').value = character.first_appearance || '';
+            document.getElementById('statusTitle').value = character.status_title || '';
+            document.getElementById('profession').value = character.profession || '';
+            document.getElementById('biography').value = character.biography || '';
+            document.getElementById('appearanceText').value = character.appearance || '';
+            document.getElementById('personalityText').value = character.personality || '';
+        
+            document.getElementById('responseMessage').innerHTML = `✏️ Редактируем персонажа "${character.name}"<br>После сохранения данные обновятся.`;
+        
+            window.editRowNumber = editRow;
+        
+            sessionStorage.removeItem('editCharacter');
+            sessionStorage.removeItem('editRowNumber');
+        }
+    });
+
+    
     let pendingData = null;
     let existingRow = null;
 
@@ -459,6 +505,8 @@
     });
 
     async function saveCharacter(overwrite = false) {
+        const name = document.getElementById('charName').value;
+        const existingRow = window.editRowNumber || (overwrite ? window.existingRow : null);
         const data = {
             name: document.getElementById('charName').value,
             image_url: document.getElementById('imageUrl').value,
@@ -505,6 +553,11 @@
 
     submitBtn.onclick = async () => {
         const name = document.getElementById('charName').value.trim();
+
+        if (window.editRowNumber) {
+            saveCharacter(true);
+            return;
+        }
         
         if (!name) {
             saveCharacter(false);
