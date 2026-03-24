@@ -182,6 +182,22 @@
             color: #7a684a;
         }
 
+        .edit-btn {
+            background: #c7a252;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.8rem;
+            transition: 0.2s;
+            flex: 1;
+        }
+
+        .edit-btn:hover {
+            background: #b48c48;
+        }
+
         @media (max-width: 700px) {
             .characters-grid {
                 grid-template-columns: 1fr;
@@ -263,9 +279,27 @@
                     📅 ${char.timestamp || 'Дата неизвестна'}<br>
                     ⚡ ${escapeHtml(char.status || 'Статус не указан')}
                 </div>
-                <button class="delete-btn" onclick="deleteCharacter(${char.row_number}, '${escapeHtml(char.name)}', event)">🗑️ Удалить</button>
+                <div style="display: flex; gap: 8px; margin-top: 8px;">
+                    <button class="edit-btn" onclick="editCharacter(${char.row_number}, event)">✏️ Редактировать</button>
+                    <button class="delete-btn" onclick="deleteCharacter(${char.row_number}, '${escapeHtml(char.name)}', event)">🗑️ Удалить</button>
+                </div>
             </div>
         `).join('');
+    }
+
+    function editCharacter(rowNumber, event) {
+        event.stopPropagation();
+    
+        fetch(`/api/character/${rowNumber}`)
+            .then(res => res.json())
+            .then(character => {
+                sessionStorage.setItem('editCharacter', JSON.stringify(character));
+                sessionStorage.setItem('editRowNumber', rowNumber);
+                window.location.href = '/';
+            })
+            .catch(err => {
+                alert('Ошибка загрузки данных для редактирования: ' + err.message);
+            });
     }
 
     async function viewCharacter(rowNumber) {
