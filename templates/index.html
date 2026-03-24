@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Создание персонажа | Фэнтези мир</title>
+    <title>Создание персонажа | Три шага до края</title>
     <style>
         * {
             margin: 0;
@@ -321,7 +321,7 @@
             <div class="image-block">
                 <div class="portrait-frame">
                     <div class="portrait-placeholder" id="portraitPreview" onclick="document.getElementById('imageUpload').click()">
-                        <span>⚔️ НАЖМИТЕ ДЛЯ ЗАГРУЗКИ ⚔️</span>
+                        <span>⚔️ ПОРТРЕТ ⚔️</span>
                     </div>
                     <input type="file" id="imageUpload" accept="image/*" style="display: none;">
                     <button type="button" class="img-upload-btn" id="uploadBtn">📜 Загрузить изображение</button>
@@ -335,34 +335,34 @@
                 <div class="status-grid">
                     <div class="status-item">
                         <div class="status-label">⚡ Состояние</div>
-                        <input type="text" id="status" value="Здоров">
+                        <input type="text" id="status" placeholder="Жив, здоров...">
                     </div>
                     <div class="status-item">
                         <div class="status-label">⏰ Время на данный момент</div>
-                        <input type="text" id="currentTime" value="Весна, день 3">
+                        <input type="text" id="currentTime" placeholder="1547 год, 3 день Красноплода...">
                     </div>
                     <div class="status-item">
                         <div class="status-label">📍 Локация</div>
-                        <input type="text" id="location" value="Таверна «Серебряный Рог»">
+                        <input type="text" id="location" placeholder="Империя, Троувер, главный квартал...">
                     </div>
                 </div>
                 <div class="inventory-box">
                     <div class="status-label">🎒 Инвентарь</div>
-                    <textarea id="inventory" rows="3">Эльфийский плащ, рунический кинжал, амулет луны</textarea>
+                    <textarea id="inventory" rows="3" placeholder="Запасы еды на три дня, веревка, факелы..."></textarea>
                 </div>
             </div>
         </div>
 
         <div class="under-image-info">
             <div class="info-grid">
-                <div class="info-field"><label>🧝 Раса</label><input type="text" id="race" value="Полуэльф"></div>
-                <div class="info-field"><label>📅 Дата рождения</label><input type="text" id="birthDate" value="1243 год"></div>
-                <div class="info-field"><label>🏔️ Место рождения</label><input type="text" id="birthPlace" value="Туманный лес"></div>
-                <div class="info-field"><label>⏳ Годы жизни</label><input type="text" id="lifespan" value="1243 - н.в."></div>
-                <div class="info-field"><label>⭐ Знак Звездного круга</label><input type="text" id="starSign" value="Странник"></div>
-                <div class="info-field"><label>📖 Первое появление</label><input type="text" id="firstAppearance" value="Летопись леса"></div>
-                <div class="info-field"><label>👑 Статус</label><input type="text" id="statusTitle" value="Хранитель рун"></div>
-                <div class="info-field"><label>⚔️ Профессия</label><input type="text" id="profession" value="Исследователь"></div>
+                <div class="info-field"><label>🧝 Раса</label><input type="text" id="race" placeholder="Чистокровный человек"></div>
+                <div class="info-field"><label>📅 Дата рождения</label><input type="text" id="birthDate" placeholder="1476 год от Второго Катаклизма, 3 день Студовея"></div>
+                <div class="info-field"><label>🏔️ Место рождения</label><input type="text" id="birthPlace" placeholder="Империя, Троувер, главный квартал"></div>
+                <div class="info-field"><label>⏳ Годы жизни</label><input type="text" id="lifespan" placeholder="1476 г. - н. в."></div>
+                <div class="info-field"><label>⭐ Знак Звездного круга</label><input type="text" id="starSign" placeholder="Мышь"></div>
+                <div class="info-field"><label>📖 Первое появление</label><input type="text" id="firstAppearance" placeholder="Клубок 2"></div>
+                <div class="info-field"><label>👑 Статус</label><input type="text" id="statusTitle" placeholder="Эшевен лекарской науки"></div>
+                <div class="info-field"><label>⚔️ Профессия</label><input type="text" id="profession" value="Лекарь"></div>
             </div>
         </div>
 
@@ -403,7 +403,6 @@
     let pendingData = null;
     let existingRow = null;
 
-    // Загрузка изображения
     const uploadInput = document.getElementById('imageUpload');
     const portraitPreview = document.getElementById('portraitPreview');
 
@@ -425,7 +424,6 @@
         }
     };
 
-    // Вкладки
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.onclick = () => {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -435,7 +433,6 @@
         };
     });
 
-    // Сохранение
     const submitBtn = document.getElementById('submitForm');
     const responseDiv = document.getElementById('responseMessage');
     const modal = document.getElementById('confirmModal');
@@ -488,12 +485,10 @@
         const name = document.getElementById('charName').value.trim();
         
         if (!name) {
-            // Если имя пустое, сохраняем сразу (будет "Без имени X")
             saveCharacter(false);
             return;
         }
 
-        // Проверяем, существует ли персонаж с таким именем
         try {
             const res = await fetch('/api/character/check', {
                 method: 'POST',
@@ -503,7 +498,6 @@
             const result = await res.json();
             
             if (result.exists) {
-                // Показываем модальное окно
                 document.getElementById('modalMessage').innerHTML = 
                     `Персонаж "${name}" уже существует.<br>Хотите перезаписать его?`;
                 pendingData = { name: name };
